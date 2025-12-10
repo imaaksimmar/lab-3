@@ -1,7 +1,8 @@
+#include "deque.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "deque.h"
-
+#include <string.h>
+#include <errno.h>
 
 my_deque *create_deque() {
     my_deque *dq = malloc(sizeof(my_deque));
@@ -76,9 +77,8 @@ void pop_back(my_deque *dq) {
     else {
         dq->start = NULL;
     }
-    dq->size--;
-    
     free(old);
+    dq->size--;
 }
 
 
@@ -173,4 +173,87 @@ void free_deque(my_deque *dq) {
         pop_front(dq);
     }
     free(dq);
+}
+
+
+int at(my_deque *dq, int index) {
+    if (dq == NULL || index < 0 || index >= dq->size)
+        return 0;
+
+    elem *current;
+
+    if (index < dq->size / 2) {
+        current = dq->start;
+        for (int i = 0; i < index; i++)
+            current = current->next;
+    }
+
+    else {
+        current = dq->end;
+        for (int i = dq->size - 1; i > index; i--)
+            current = current->prev;
+    }
+
+    return current->data;
+}
+
+
+int is_valid_integer(const char *str) {
+    if (!str || *str == '\0') return 0;
+
+    char *endptr;
+    errno = 0;
+    long val = strtol(str, &endptr, 10);
+    return (errno == 0) && (*endptr == '\0') && (str != endptr);
+}
+
+
+my_deque* read_deque_from_input(void) {
+    char buffer[4096];
+    if (!fgets(buffer, sizeof(buffer), stdin)) {
+        return NULL;
+    }
+
+    my_deque *dq = create_deque();
+    char *token = strtok(buffer, " \t\n\r");
+
+    while (token) {
+        if (*token != '\0') {
+            if (is_valid_integer(token)) {
+                long num = strtol(token, NULL, 10);
+                add_back(dq, (int)num);
+            } else {
+                free_deque(dq);
+                return NULL;
+            }
+        }
+        token = strtok(NULL, " \t\n\r");
+    }
+
+    return dq;
+}
+
+my_deque* read_deque_from_file(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (f== NULL) return NULL;
+
+    my_deque *dq = create_deque();
+    int value;
+    while (fscanf(f, "%d", &value) == 1) {
+        add_back(dq, value);
+    }
+    fclose(f);
+    return dq;
+}
+
+void write_deque_to_file(my_deque *dq, const char *filename) {
+    FILE *f = fopen(filename, "w");
+    if (f == NULL) return;
+
+    elem *current = dq->start;
+    while (current != NULL) {
+        fprintf(f, "%d ", current->data);
+        current = current->next;
+    }
+    fclose(f);
 }
