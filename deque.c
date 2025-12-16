@@ -1,19 +1,14 @@
 #include "deque.h"
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
-my_deque *create_deque() {
-    my_deque *dq = malloc(sizeof(my_deque));
-    dq->start = dq->end = NULL;
-    dq->size= 0;
-    return dq;
-}
 
 void add_front(my_deque *dq, int data) {
     elem *new_elem = malloc(sizeof(elem));
     if(new_elem == NULL) {
+        printf("Ошибка. Память не выделилась \n");
         return;
     }
     new_elem->data = data;
@@ -33,6 +28,7 @@ void add_front(my_deque *dq, int data) {
 void add_back(my_deque *dq, int data) {
     elem *new_elem = malloc(sizeof(elem));
     if(new_elem == NULL) {
+        printf("Ошибка. Память не выделилась \n");
         return;
     }
     new_elem->data = data;
@@ -51,41 +47,49 @@ void add_back(my_deque *dq, int data) {
 
 void pop_front(my_deque *dq) {
     if(dq->start == NULL) {
+        printf("Ошибка. Дек пуст \n");
         return;
     }
+    
     elem *old = dq->start;
     dq->start = dq->start->next;
-    if(dq->start != NULL) {
-        dq->start->prev = NULL;
-    }
-    else {
+    
+    if( dq->start == NULL) {
         dq->end = NULL;
     }
+    else {
+        dq->start->prev = NULL;
+    }
+    
     free(old);
     dq->size--;
 }
 
 void pop_back(my_deque *dq) {
     if(dq->end == NULL) {
+        printf("Ошибка. Дек пуст \n");
         return;
     }
     elem *old = dq->end;
     dq->end = dq->end->prev;
-    if(dq->end != NULL) {
-        dq->end->next = NULL;
-    }
-    else {
+    
+    if(dq->end == NULL) {
         dq->start = NULL;
     }
+    else {
+        dq->end->next = NULL;
+    }
+    
     free(old);
     dq->size--;
 }
 
-
 void add_at_index(my_deque *dq, int index, int data) {
-    if (index < 0 || index > dq->size) {
+    if (index<0 || index>dq->size) {
+        printf("Ошибка. Нельзя добавить элемент по этому индексу \n");
         return;
     }
+    
     if (index == 0) {
         add_front(dq, data);
         return;
@@ -97,17 +101,19 @@ void add_at_index(my_deque *dq, int index, int data) {
 
     elem *new_elem = malloc(sizeof(elem));
     if (new_elem == NULL) {
+        printf("Ошибка. Память не выделилась \n");
         return;
     }
+    
     new_elem->data = data;
-
     elem *current;
     if (index <= dq->size / 2) {
         current = dq->start;
         for (int i = 0; i < index - 1; i++) {
             current = current->next;
         }
-    } else {
+    }
+    else {
         current = dq->end;
         for (int i = dq->size - 1; i > index - 1; i--) {
             current = current->prev;
@@ -116,7 +122,8 @@ void add_at_index(my_deque *dq, int index, int data) {
 
     new_elem->prev = current;
     new_elem->next = current->next;
-    if (current->next != NULL) {
+    
+    if(current->next != NULL) {
         current->next->prev = new_elem;
     }
     current->next = new_elem;
@@ -124,9 +131,8 @@ void add_at_index(my_deque *dq, int index, int data) {
 }
     
 void pop_at_index(my_deque *dq,  int index) {
-    elem *current;
-    
     if(index<0 || index>=dq->size) {
+        printf("Ошибка. Нельзя удалить элемент по этому индексу \n");
         return;
     }
     if(index == 0){
@@ -137,6 +143,7 @@ void pop_at_index(my_deque *dq,  int index) {
         pop_back(dq);
         return;
     }
+    elem *current;
     
     if(index < dq->size/2) {
         current = dq->start;
@@ -160,46 +167,55 @@ void pop_at_index(my_deque *dq,  int index) {
 }
 
 
+my_deque *create_deque() {
+    my_deque *dq = malloc(sizeof(my_deque));
+    if(dq == NULL) {
+        return NULL;
+    }
+    dq->start = dq->end = NULL;
+    dq->size= 0;
+    return dq;
+}
+
 void print_deque(my_deque *dq) {
     elem *current = dq->start;
-    while (current != NULL) {
+    while(current != NULL) {
         printf("%d ", current->data);
         current = current->next;
     }
 }
 
 void free_deque(my_deque *dq) {
-    while (dq->start != NULL) {
+    while(dq->start != NULL) {
         pop_front(dq);
     }
     free(dq);
 }
 
 
-int at(my_deque *dq, int index) {
-    if (dq == NULL || index < 0 || index >= dq->size)
+int get_value_at_index(my_deque *dq, int index) {
+    if (index<0 || index>=dq->size)
         return 0;
 
     elem *current;
 
     if (index < dq->size / 2) {
         current = dq->start;
-        for (int i = 0; i < index; i++)
+        for (int i = 0; i<index; i++)
             current = current->next;
     }
 
     else {
         current = dq->end;
-        for (int i = dq->size - 1; i > index; i--)
+        for (int i = dq->size - 1; i>index; i--)
             current = current->prev;
     }
 
     return current->data;
 }
 
-
 int is_valid_integer(const char *str) {
-    if (!str || *str == '\0') return 0;
+    if(str==NULL || *str == '\0') return 0;
 
     char *endptr;
     errno = 0;
@@ -208,7 +224,7 @@ int is_valid_integer(const char *str) {
 }
 
 
-my_deque* read_deque_from_input(void) {
+my_deque *read_deque_from_input(void) {
     char buffer[4096];
     if (!fgets(buffer, sizeof(buffer), stdin)) {
         return NULL;
@@ -229,31 +245,34 @@ my_deque* read_deque_from_input(void) {
         }
         token = strtok(NULL, " \t\n\r");
     }
-
     return dq;
 }
 
-my_deque* read_deque_from_file(const char *filename) {
-    FILE *f = fopen(filename, "r");
-    if (f== NULL) return NULL;
+
+my_deque *read_deque_from_file(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if(file == NULL) return NULL;
 
     my_deque *dq = create_deque();
     int value;
-    while (fscanf(f, "%d", &value) == 1) {
+    while(fscanf(file, "%d", &value)== 1) {
         add_back(dq, value);
     }
-    fclose(f);
+    
+    fclose(file);
     return dq;
 }
 
+
 void write_deque_to_file(my_deque *dq, const char *filename) {
-    FILE *f = fopen(filename, "w");
-    if (f == NULL) return;
+    FILE *file = fopen(filename, "w");
+    if(file == NULL) return;
 
     elem *current = dq->start;
-    while (current != NULL) {
-        fprintf(f, "%d ", current->data);
+    while(current != NULL) {
+        fprintf(file, "%d ", current->data);
         current = current->next;
     }
-    fclose(f);
+    fclose(file);
 }
+

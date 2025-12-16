@@ -1,10 +1,5 @@
-#include "deque.h"
-#include "bubble_sort.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
+#include "bubble_sort.h"
 
 void swap_elements(my_deque *dq, elem *a){
     if(a == NULL || a->next == NULL ) {
@@ -18,8 +13,8 @@ void swap_elements(my_deque *dq, elem *a){
         dq->start = b;
         b->prev = NULL;
         b->next = a;
-        
         a->prev = b;
+        
         if(next_b == NULL) {
             a->next = NULL;
             dq->end = a;
@@ -30,12 +25,11 @@ void swap_elements(my_deque *dq, elem *a){
         }
         return;
     }
+    
     else if(next_b == NULL) {
         dq->end = a;
-        elem *prev_a = a->prev;
         
         prev_a->next = b;
-        
         b->prev = prev_a;
         b->next = a;
         
@@ -56,19 +50,21 @@ void swap_elements(my_deque *dq, elem *a){
     }
 }
 
+
 void bubble_sort(my_deque *dq) {
-    if (dq->size <= 1) return;
+    if (dq->size <= 1) {
+        printf("Сортировать нечего \n");
+        return;
+    }
 
     for (int i = 0; i < dq->size - 1; i++) {
         elem *current = dq->start;
         for (int j = 0; j < dq->size - 1 - i; j++) {
-
             if (current->data > current->next->data) {
                 swap_elements(dq, current);
+                current = current->prev;
             }
             current = current->next;
         }
     }
 }
-
-
