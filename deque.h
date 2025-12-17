@@ -12,6 +12,9 @@ typedef struct my_deque {
     elem *end;
 } my_deque;
 
+int get_deque_size(my_deque* dq);
+elem* get_elem_at_index(my_deque *dq, int index);
+
 void add_front(my_deque *dq, int data);
 void add_back(my_deque *dq, int data);
 void add_at_index(my_deque *dq, int index, int data);

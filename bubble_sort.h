@@ -1,4 +1,5 @@
 #include "deque.h"
 
+void swap_nodes(my_deque *dq, elem *a, elem *b);
 void swap_elements(my_deque *dq, elem *a);
 void bubble_sort(my_deque *dq);

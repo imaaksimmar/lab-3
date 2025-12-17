@@ -4,6 +4,28 @@
 #include <errno.h>
 #include <string.h>
 
+int get_deque_size(my_deque* dq) {
+    int count = 0;
+    elem *current = dq->start;
+    while(current) {
+        count++;
+        current = current->next;
+    }
+    return count;
+}
+
+elem* get_elem_at_index(my_deque *dq, int index) {
+    if(!dq || index < 0) return NULL;
+    
+    elem *current = dq->start;
+    int i = 0;
+    while (current && i < index) {
+        current = current->next;
+        i++;
+    }
+    return current;
+}
+
 
 void add_front(my_deque *dq, int data) {
     elem *new_elem = malloc(sizeof(elem));
@@ -22,7 +44,6 @@ void add_front(my_deque *dq, int data) {
         dq->start->prev = new_elem;
         dq->start = new_elem;
     }
-    dq->size++;
 }
 
 void add_back(my_deque *dq, int data) {
@@ -42,7 +63,6 @@ void add_back(my_deque *dq, int data) {
         dq->end->next = new_elem;
         dq->end = new_elem;
     }
-    dq->size++;
 }
 
 void pop_front(my_deque *dq) {
@@ -62,7 +82,6 @@ void pop_front(my_deque *dq) {
     }
     
     free(old);
-    dq->size--;
 }
 
 void pop_back(my_deque *dq) {
@@ -81,11 +100,11 @@ void pop_back(my_deque *dq) {
     }
     
     free(old);
-    dq->size--;
 }
 
 void add_at_index(my_deque *dq, int index, int data) {
-    if (index<0 || index>dq->size) {
+    int n = get_deque_size(dq);
+    if (index<0 || index>n) {
         printf("Ошибка. Нельзя добавить элемент по этому индексу \n");
         return;
     }
@@ -94,7 +113,7 @@ void add_at_index(my_deque *dq, int index, int data) {
         add_front(dq, data);
         return;
     }
-    if (index == dq->size) {
+    if (index == n) {
         add_back(dq, data);
         return;
     }
@@ -107,7 +126,7 @@ void add_at_index(my_deque *dq, int index, int data) {
     
     new_elem->data = data;
     elem *current;
-    if (index <= dq->size / 2) {
+    if (index <= n / 2) {
         current = dq->start;
         for (int i = 0; i < index - 1; i++) {
             current = current->next;
@@ -115,7 +134,7 @@ void add_at_index(my_deque *dq, int index, int data) {
     }
     else {
         current = dq->end;
-        for (int i = dq->size - 1; i > index - 1; i--) {
+        for (int i = n - 1; i > index - 1; i--) {
             current = current->prev;
         }
     }
@@ -127,11 +146,11 @@ void add_at_index(my_deque *dq, int index, int data) {
         current->next->prev = new_elem;
     }
     current->next = new_elem;
-    dq->size++;
 }
     
 void pop_at_index(my_deque *dq,  int index) {
-    if(index<0 || index>=dq->size) {
+    int n = get_deque_size(dq);
+    if(index<0 || index>=n) {
         printf("Ошибка. Нельзя удалить элемент по этому индексу \n");
         return;
     }
@@ -139,13 +158,13 @@ void pop_at_index(my_deque *dq,  int index) {
         pop_front(dq);
         return;
     }
-    if(index == dq->size-1) {
+    if(index == n-1) {
         pop_back(dq);
         return;
     }
     elem *current;
     
-    if(index < dq->size/2) {
+    if(index < n/2) {
         current = dq->start;
         for(int i=0; i<index; i++) {
             current = current->next;
@@ -153,7 +172,7 @@ void pop_at_index(my_deque *dq,  int index) {
     }
     else {
         current = dq->end;
-        for(int i = dq->size-1 ; i>index; i--){
+        for(int i = n-1 ; i>index; i--){
             current = current->prev;
         }
     }
@@ -162,8 +181,6 @@ void pop_at_index(my_deque *dq,  int index) {
     current->next->prev = current->prev;
     
     free(current);
-    dq->size--;
-    
 }
 
 
@@ -173,7 +190,6 @@ my_deque *create_deque() {
         return NULL;
     }
     dq->start = dq->end = NULL;
-    dq->size= 0;
     return dq;
 }
 
@@ -194,12 +210,13 @@ void free_deque(my_deque *dq) {
 
 
 int get_value_at_index(my_deque *dq, int index) {
-    if (index<0 || index>=dq->size)
+    int n = get_deque_size(dq);
+    if (index<0 || index>=n)
         return 0;
 
     elem *current;
 
-    if (index < dq->size / 2) {
+    if (index < n / 2) {
         current = dq->start;
         for (int i = 0; i<index; i++)
             current = current->next;
@@ -207,12 +224,15 @@ int get_value_at_index(my_deque *dq, int index) {
 
     else {
         current = dq->end;
-        for (int i = dq->size - 1; i>index; i--)
+        for (int i = n - 1; i>index; i--)
             current = current->prev;
     }
 
     return current->data;
 }
+
+
+
 
 int is_valid_integer(const char *str) {
     if(str==NULL || *str == '\0') return 0;

@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     
     if (argc == 3 && strcmp(argv[1], "--benchmark") == 0) {
         my_deque *orig = read_deque_from_file(argv[2]);
-        if (orig == NULL || orig->size == 0) {
+        if (orig == NULL || get_deque_size(orig) == 0) {
             printf("Ошибка чтения %s \n", argv[2]);
             return 1;
         }
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
         double time_bubble = get_time_bubble_sort(bubble);
         double time_heap = get_time_heap_sort(heap);
 
-        printf("%d,%.6f,%.6f\n", orig->size, time_bubble, time_heap);
+        printf("%d,%.6f,%.6f\n", get_deque_size(orig), time_bubble, time_heap);
 
         free_deque(orig);
         free_deque(bubble);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     while(1) {
         printf("Введите последовательность чисел через пробел: ");
         my_deque *dq = read_deque_from_input();
-        if (dq==NULL || dq->size==0) {
+        if (dq==NULL || get_deque_size(dq)==0) {
                 printf("Ошибка: введены некорректные значения \n");
             continue;
         }
